@@ -10,6 +10,7 @@ export const navConfig = {
       { label: "Crear Torneo", path: "/organizador/torneos/nuevo" },
     ],
     jugador: [
+      { label: "Dashboard", path: "/jugador/dashboard" },
       { label: "Mis Equipos", path: "/jugador/equipos" },
       { label: "Unirme a Torneo", path: "/jugador/torneos" },
     ],

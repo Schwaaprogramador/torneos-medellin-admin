@@ -25,9 +25,9 @@ export default function LoginPage(): JSX.Element {
         throw new Error("Credenciales incorrectas");
       }
 
-      const data: { id: string; username: string; email: string; type: string } =
+      const data: { id: string; email: string; type: string , name: string} =
         await response.json();
-
+      
       // Guardamos en localStorage
       localStorage.setItem("user", JSON.stringify(data));
 

@@ -1,17 +1,37 @@
-// middleware.js
+// middleware.ts
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+
+const AUTH_ROUTES = ["/admin", "/organizador", "/jugador"];
 
 export function middleware(req) {
-  const token = req.cookies.get("token");
-  const userRole = token?.role; // ejemplo decodificado
+  const { pathname } = req.nextUrl;
 
-  const url = req.nextUrl.pathname;
+  // Verificar si la ruta está protegida
+  if (AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
+    const token = req.cookies.get("token")?.value;
 
-  if (url.startsWith("/admin") && userRole !== "admin") {
-    return NextResponse.redirect(new URL("/unauthorized", req.url));
+    if (!token) {
+      // Si no hay token -> redirigir al login
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    try {
+      // Validar token con tu secret
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Si todo bien, continuar
+      return NextResponse.next();
+    } catch (err) {
+      console.error("JWT inválido:", err);
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
-  if (url.startsWith("/organizador") && userRole !== "organizador") {
-    return NextResponse.redirect(new URL("/unauthorized", req.url));
-  }
+
   return NextResponse.next();
 }
+
+// Configurar qué rutas aplicar
+export const config = {
+  matcher: ["/admin/:path*", "/organizador/:path*", "/jugador/:path*"],
+};

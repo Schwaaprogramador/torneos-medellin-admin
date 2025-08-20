@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface Equipo {
   _id: string;
@@ -18,14 +20,11 @@ interface Jugador {
 }
 
 export default function JugadorEquiposPage() {
+  const router = useRouter();
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [jugador, setJugador] = useState<Jugador | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newEquipo, setNewEquipo] = useState({
-    name: "",
-    image: ""
-  });
+
 
   // Simulación de datos (en producción esto vendría de una API)
   useEffect(() => {
@@ -63,24 +62,7 @@ export default function JugadorEquiposPage() {
     }, 1000);
   }, []);
 
-  const handleCreateEquipo = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newEquipo.name.trim()) return;
 
-    const nuevoEquipo: Equipo = {
-      _id: `equipo${Date.now()}`,
-      name: newEquipo.name,
-      capitan: jugador?._id || "",
-      image: newEquipo.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop",
-      players: [jugador?._id || ""],
-      torneos: [],
-      createdAt: new Date().toISOString()
-    };
-
-    setEquipos([...equipos, nuevoEquipo]);
-    setNewEquipo({ name: "", image: "" });
-    setShowCreateForm(false);
-  };
 
   const handleDeleteEquipo = (equipoId: string) => {
     if (confirm("¿Estás seguro de que quieres eliminar este equipo?")) {
@@ -114,7 +96,7 @@ export default function JugadorEquiposPage() {
           Equipos ({equipos.length})
         </h2>
         <button
-          onClick={() => setShowCreateForm(!showCreateForm)}
+          onClick={() => router.push("/jugador/equipos/nuevo")}
           className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,56 +106,7 @@ export default function JugadorEquiposPage() {
         </button>
       </div>
 
-      {/* Formulario de Creación */}
-      {showCreateForm && (
-        <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Crear Nuevo Equipo</h3>
-          <form onSubmit={handleCreateEquipo} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre del Equipo
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={newEquipo.name}
-                onChange={(e) => setNewEquipo({ ...newEquipo, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                placeholder="Ej: Los Tigres"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-                URL de la Imagen (opcional)
-              </label>
-              <input
-                type="url"
-                id="image"
-                value={newEquipo.image}
-                onChange={(e) => setNewEquipo({ ...newEquipo, image: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                placeholder="https://ejemplo.com/imagen.jpg"
-              />
-            </div>
-            <div className="flex space-x-3">
-              <button
-                type="submit"
-                className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors"
-              >
-                Crear Equipo
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCreateForm(false)}
-                className="bg-gray-500 hover:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+
 
       {/* Lista de Equipos */}
       {equipos.length > 0 ? (
@@ -251,7 +184,7 @@ export default function JugadorEquiposPage() {
             Crea tu primer equipo para comenzar a participar en torneos. Los equipos te permiten unirte a competiciones y jugar junto a otros jugadores.
           </p>
           <button
-            onClick={() => setShowCreateForm(true)}
+            onClick={() => router.push("/jugador/equipos/nuevo")}
             className="bg-yellow-500 hover:bg-yellow-400 text-black px-8 py-3 rounded-lg font-medium transition-colors text-lg"
           >
             Crear Mi Primer Equipo

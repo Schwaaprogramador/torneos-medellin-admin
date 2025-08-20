@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { navConfig } from "@/componentes/navConfig";
 
 interface NavbarProps {
@@ -7,7 +8,19 @@ interface NavbarProps {
 }
 
 export default function Navbar({ role }: NavbarProps) {
+  const router = useRouter();
   const menuItems = navConfig[role] || [];
+
+  const handleLogout = () => {
+    // Eliminar datos del localStorage
+    localStorage.removeItem('userData');
+    
+    // Eliminar la cookie de token
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    
+    // Redireccionar a la página de login
+    router.push('/');
+  };
 
   return (
     <header className="bg-slate-800 text-white shadow-md">
@@ -33,8 +46,11 @@ export default function Navbar({ role }: NavbarProps) {
         {/* Espaciador flexible */}
         <div className="flex-1" />
 
-        {/* Botón de perfil o logout */}
-        <button className="bg-yellow-500 text-black px-4 py-1 rounded-lg hover:bg-yellow-400 transition">
+        {/* Botón de logout */}
+        <button 
+          onClick={handleLogout}
+          className="bg-yellow-500 text-black px-4 py-1 rounded-lg hover:bg-yellow-400 transition"
+        >
           Cerrar sesión
         </button>
       </nav>

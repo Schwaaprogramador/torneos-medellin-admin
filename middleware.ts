@@ -1,10 +1,11 @@
-// middleware.ts
-import { NextResponse } from "next/server";
+// middleware.js
+import { NextResponse, NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
 const AUTH_ROUTES = ["/admin", "/organizador", "/jugador"];
+const JWT_SECRET = process.env.JWT_SECRET || 'arrozconpollo';
 
-export function middleware(req) {
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Verificar si la ruta está protegida
@@ -13,12 +14,14 @@ export function middleware(req) {
 
     if (!token) {
       // Si no hay token -> redirigir al login
+      console.log('No token found, redirecting to login');
       return NextResponse.redirect(new URL("/", req.url));
     }
 
     try {
       // Validar token con tu secret
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET);
+      console.log('Token verified successfully');
 
       // Si todo bien, continuar
       return NextResponse.next();

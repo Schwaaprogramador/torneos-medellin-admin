@@ -13,7 +13,7 @@ export default function Navbar({ role }: NavbarProps) {
 
   const handleLogout = () => {
     // Eliminar datos del localStorage
-    localStorage.removeItem('userData');
+    localStorage.removeItem('user');
     
     // Eliminar la cookie de token
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

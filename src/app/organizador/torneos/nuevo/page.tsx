@@ -8,6 +8,7 @@ interface NuevoTorneo {
   format: 'elimination' | 'league' | 'mixed';
   maxTeams: number;
   image: string;
+  username: string; // Campo requerido por el middleware de admin
 }
 
 export default function NuevoTorneoPage() {
@@ -19,7 +20,8 @@ export default function NuevoTorneoPage() {
     name: '',
     format: 'elimination',
     maxTeams: 8,
-    image: ''
+    image: '',
+    username: '' // Campo para autenticación del admin
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,23 +35,34 @@ export default function NuevoTorneoPage() {
       return;
     }
 
+    if (!torneo.username.trim()) {
+      setError('El nombre de usuario del administrador es obligatorio');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Llamada real a la API para crear el torneo
+      // Llamada a la API para crear el torneo
       const response = await fetch('http://localhost:4000/torneos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...torneo,
-          // El organizerId se asignará en el backend usando el token
-          status: 'inscripcion'
-        }),
-        credentials: 'include'
+          name: torneo.name,
+          format: torneo.format,
+          maxTeams: torneo.maxTeams,
+          image: torneo.image,
+          username: torneo.username, // Requerido por el middleware de admin
+          status: 'inscripcion' // Estado inicial del torneo
+        })
       });
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Error al crear el torneo');
       }
+      
+      const result = await response.json();
+      console.log('Torneo creado exitosamente:', result);
       
       // Redirigir a la lista de torneos
       router.push('/organizador/torneos');
@@ -83,8 +96,26 @@ export default function NuevoTorneoPage() {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+              Usuario Administrador *
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={torneo.username}
+              onChange={(e) => setTorneo({ ...torneo, username: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              placeholder="Nombre de usuario del administrador"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Debe ser un usuario con perfil de administrador
+            </p>
+          </div>
+
+          <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre del Torneo
+              Nombre del Torneo *
             </label>
             <input
               type="text"
@@ -99,13 +130,14 @@ export default function NuevoTorneoPage() {
           
           <div>
             <label htmlFor="format" className="block text-sm font-medium text-gray-700 mb-2">
-              Formato del Torneo
+              Formato del Torneo *
             </label>
             <select
               id="format"
               value={torneo.format}
               onChange={(e) => setTorneo({ ...torneo, format: e.target.value as 'elimination' | 'league' | 'mixed' })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              required
             >
               <option value="elimination">Eliminación Directa</option>
               <option value="league">Liga (Todos contra Todos)</option>
@@ -115,7 +147,7 @@ export default function NuevoTorneoPage() {
           
           <div>
             <label htmlFor="maxTeams" className="block text-sm font-medium text-gray-700 mb-2">
-              Número Máximo de Equipos
+              Número Máximo de Equipos *
             </label>
             <input
               type="number"
@@ -177,6 +209,7 @@ export default function NuevoTorneoPage() {
           <li>• Establece un número adecuado de equipos según el formato</li>
           <li>• Considera la duración total del torneo al planificar</li>
           <li>• Añade una imagen atractiva para promocionar tu torneo</li>
+          <li>• Asegúrate de usar un usuario con permisos de administrador</li>
         </ul>
       </div>
     </div>

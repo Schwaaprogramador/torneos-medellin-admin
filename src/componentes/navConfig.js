@@ -12,7 +12,8 @@ export const navConfig = {
     jugador: [
       { label: "Dashboard", path: "/jugador/dashboard" },
       { label: "Mis Equipos", path: "/jugador/equipos" },
-      { label: "Unirme a Torneo", path: "/jugador/torneos" },
+      { label: "Buscar Equipo", path: "/jugador/equipos/search" },
+      { label: "Torneos", path: "/jugador/torneos" },
     ],
   };
   

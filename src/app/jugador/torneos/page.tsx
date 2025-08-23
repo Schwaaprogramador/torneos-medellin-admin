@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Torneo {
   _id: string;
@@ -9,7 +10,8 @@ interface Torneo {
   maxTeams: number;
   image: string;
   status: "inscripcion" | "fase_grupos" | "fase_eliminacion" | "finalizado";
-  acceptedTeams: string[];
+  acceptedTeams: any[];
+  requestTeams: any[];
   createdAt: string;
 }
 
@@ -20,84 +22,102 @@ interface Jugador {
 }
 
 export default function JugadorTorneosPage() {
+  const router = useRouter();
   const [torneos, setTorneos] = useState<Torneo[]>([]);
   const [jugador, setJugador] = useState<Jugador | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTorneo, setNewTorneo] = useState({
     name: "",
     format: "elimination" as "elimination" | "league" | "mixed",
     maxTeams: 8,
-    image: ""
+    image: "",
+    username: "" // Campo requerido por el middleware de admin
   });
 
-  // Simulación de datos (en producción esto vendría de una API)
+  // Cargar torneos desde el backend
   useEffect(() => {
-    const mockJugador: Jugador = {
-      _id: "jugador123",
-      name: "Carlos Rodríguez",
-      email: "carlos.rodriguez@email.com"
+    const fetchTorneos = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:4000/torneos');
+        
+        if (!response.ok) {
+          throw new Error('Error al cargar los torneos');
+        }
+        
+        const data = await response.json();
+        setTorneos(data);
+      } catch (err: any) {
+        console.error('Error fetching torneos:', err);
+        setError(err.message || 'Error al cargar los torneos');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const mockTorneos: Torneo[] = [
-      {
-        _id: "torneo1",
-        name: "Copa Primavera",
-        organizerId: "organizador123",
-        format: "elimination",
-        maxTeams: 16,
-        image: "https://images.unsplash.com/photo-1577471488278-16eec37ffcc2?w=150&h=150&fit=crop",
-        status: "inscripcion",
-        acceptedTeams: ["equipo1", "equipo3", "equipo5"],
-        createdAt: "2024-03-15T10:30:00Z"
-      },
-      {
-        _id: "torneo2",
-        name: "Liga Medellín",
-        organizerId: "organizador456",
-        format: "league",
-        maxTeams: 10,
-        image: "https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=150&h=150&fit=crop",
-        status: "fase_grupos",
-        acceptedTeams: ["equipo2", "equipo4", "equipo6", "equipo7"],
-        createdAt: "2024-02-01T14:20:00Z"
-      }
-    ];
-
-    setTimeout(() => {
-      setJugador(mockJugador);
-      setTorneos(mockTorneos);
-      setLoading(false);
-    }, 1000);
+    fetchTorneos();
   }, []);
 
-  const handleCreateTorneo = (e: React.FormEvent) => {
+  const handleCreateTorneo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTorneo.name.trim()) return;
+    if (!newTorneo.name.trim() || !newTorneo.username.trim()) {
+      setError('El nombre del torneo y el usuario administrador son obligatorios');
+      return;
+    }
 
-    const nuevoTorneo: Torneo = {
-      _id: `torneo${Date.now()}`,
-      name: newTorneo.name,
-      organizerId: jugador?._id || "",
-      format: newTorneo.format,
-      maxTeams: newTorneo.maxTeams,
-      image: newTorneo.image || "https://images.unsplash.com/photo-1577471488278-16eec37ffcc2?w=150&h=150&fit=crop",
-      status: "inscripcion",
-      acceptedTeams: [],
-      createdAt: new Date().toISOString()
-    };
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:4000/torneos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newTorneo.name,
+          format: newTorneo.format,
+          maxTeams: newTorneo.maxTeams,
+          image: newTorneo.image,
+          username: newTorneo.username,
+          status: 'inscripcion'
+        })
+      });
 
-    setTorneos([...torneos, nuevoTorneo]);
-    setNewTorneo({ 
-      name: "", 
-      format: "elimination", 
-      maxTeams: 8, 
-      image: "" 
-    });
-    setShowCreateForm(false);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al crear el torneo');
+      }
+
+      const nuevoTorneo = await response.json();
+      setTorneos([...torneos, nuevoTorneo]);
+      setNewTorneo({ 
+        name: "", 
+        format: "elimination", 
+        maxTeams: 8, 
+        image: "",
+        username: ""
+      });
+      setShowCreateForm(false);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error creating tournament:', err);
+      setError(err.message || 'Error al crear el torneo');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) {
+  const handleInscribirEquipo = async (torneoId: string) => {
+    try {
+      // Aquí implementarías la lógica para inscribir un equipo
+      // Por ahora solo mostramos un mensaje
+      alert('Funcionalidad de inscripción de equipo en desarrollo');
+    } catch (err) {
+      console.error('Error inscribiendo equipo:', err);
+      setError('Error al inscribir el equipo');
+    }
+  };
+
+  if (loading && torneos.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
@@ -117,14 +137,38 @@ export default function JugadorTorneosPage() {
         </p>
       </div>
 
+      {/* Mensaje de Error */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
       {/* Formulario de Creación */}
       {showCreateForm && (
         <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Crear Nuevo Torneo</h3>
           <form onSubmit={handleCreateTorneo} className="space-y-4">
             <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                Usuario Administrador *
+              </label>
+              <input
+                type="text"
+                id="username"
+                value={newTorneo.username}
+                onChange={(e) => setNewTorneo({ ...newTorneo, username: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="Nombre de usuario del administrador"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Debe ser un usuario con perfil de administrador
+              </p>
+            </div>
+            <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre del Torneo
+                Nombre del Torneo *
               </label>
               <input
                 type="text"
@@ -138,13 +182,14 @@ export default function JugadorTorneosPage() {
             </div>
             <div>
               <label htmlFor="format" className="block text-sm font-medium text-gray-700 mb-2">
-                Formato del Torneo
+                Formato del Torneo *
               </label>
               <select
                 id="format"
                 value={newTorneo.format}
                 onChange={(e) => setNewTorneo({ ...newTorneo, format: e.target.value as "elimination" | "league" | "mixed" })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                required
               >
                 <option value="elimination">Eliminación Directa</option>
                 <option value="league">Liga (Todos contra Todos)</option>
@@ -153,7 +198,7 @@ export default function JugadorTorneosPage() {
             </div>
             <div>
               <label htmlFor="maxTeams" className="block text-sm font-medium text-gray-700 mb-2">
-                Número Máximo de Equipos
+                Número Máximo de Equipos *
               </label>
               <input
                 type="number"
@@ -182,9 +227,10 @@ export default function JugadorTorneosPage() {
             <div className="flex space-x-3">
               <button
                 type="submit"
-                className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors"
+                disabled={loading}
+                className={`bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Crear Torneo
+                {loading ? 'Creando...' : 'Crear Torneo'}
               </button>
               <button
                 type="button"
@@ -206,13 +252,16 @@ export default function JugadorTorneosPage() {
               {/* Imagen del Torneo */}
               <div className="h-48 bg-gradient-to-br from-yellow-400 to-yellow-500 relative">
                 <img
-                  src={torneo.image}
+                  src={torneo.image || "https://images.unsplash.com/photo-1577471488278-16eec37ffcc2?w=150&h=150&fit=crop"}
                   alt={torneo.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = "https://images.unsplash.com/photo-1577471488278-16eec37ffcc2?w=150&h=150&fit=crop";
+                  }}
                 />
                 <div className="absolute top-3 right-3">
                   <span className="bg-yellow-500 text-black px-2 py-1 rounded-full text-xs font-bold">
-                    {torneo.acceptedTeams.length} equipos
+                    {torneo.acceptedTeams?.length || 0} equipos
                   </span>
                 </div>
               </div>
@@ -245,7 +294,7 @@ export default function JugadorTorneosPage() {
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    Equipos: {torneo.acceptedTeams.length}/{torneo.maxTeams}
+                    Equipos: {(torneo.acceptedTeams?.length || 0)}/{torneo.maxTeams}
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,11 +309,17 @@ export default function JugadorTorneosPage() {
 
                 {/* Acciones */}
                 <div className="flex space-x-2">
-                  <button className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                  <button 
+                    onClick={() => router.push(`/jugador/torneos/${torneo._id}`)}
+                    className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                  >
                     Ver Detalles
                   </button>
                   {torneo.status === 'inscripcion' && (
-                    <button className="flex-1 bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                    <button 
+                      onClick={() => handleInscribirEquipo(torneo._id)}
+                      className="flex-1 bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                    >
                       Inscribir Equipo
                     </button>
                   )}

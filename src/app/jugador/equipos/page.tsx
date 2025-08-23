@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { url } from "../../../configs/url";
 import Link from "next/link";
 
 interface Equipo {
@@ -28,45 +29,48 @@ export default function JugadorEquiposPage() {
 
   // Simulación de datos (en producción esto vendría de una API)
   useEffect(() => {
-    const mockJugador: Jugador = {
-      _id: "jugador123",
-      name: "Carlos Rodríguez",
-      email: "carlos.rodriguez@email.com"
+    const fetchEquipos = async () => {
+      try {
+        const response = await fetch(`${url}/equipos`);
+        if (!response.ok) {
+          throw new Error("Error al obtener los equipos");
+        }
+        const data = await response.json();
+        setEquipos(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const mockEquipos: Equipo[] = [
-      {
-        _id: "equipo1",
-        name: "Los Tigres",
-        capitan: "jugador123",
-        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop",
-        players: ["jugador123", "jugador456", "jugador789"],
-        torneos: ["torneo1"],
-        createdAt: "2024-01-15T10:30:00Z"
-      },
-      {
-        _id: "equipo2",
-        name: "Los Halcones",
-        capitan: "jugador123",
-        image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop",
-        players: ["jugador123", "jugador101", "jugador102"],
-        torneos: [],
-        createdAt: "2024-02-01T14:20:00Z"
-      }
-    ];
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      setJugador(parsedData.user);
+    }
 
-    setTimeout(() => {
-      setJugador(mockJugador);
-      setEquipos(mockEquipos);
-      setLoading(false);
-    }, 1000);
+    fetchEquipos();
   }, []);
 
 
 
-  const handleDeleteEquipo = (equipoId: string) => {
+  const handleDeleteEquipo = async (equipoId: string) => {
     if (confirm("¿Estás seguro de que quieres eliminar este equipo?")) {
-      setEquipos(equipos.filter(equipo => equipo._id !== equipoId));
+      try {
+        const response = await fetch(`${url}/equipos/${equipoId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setEquipos(equipos.filter((equipo) => equipo._id !== equipoId));
+        } else {
+          alert("Error al eliminar el equipo");
+        }
+      } catch (error) {
+        console.error("Error al eliminar el equipo:", error);
+        alert("Error al conectar con el servidor");
+      }
     }
   };
 
@@ -155,9 +159,11 @@ export default function JugadorEquiposPage() {
 
                 {/* Acciones */}
                 <div className="flex space-x-2">
-                  <button className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black py-2 px-3 rounded-lg text-sm font-medium transition-colors">
-                    Ver Detalles
-                  </button>
+                  <Link href={`/jugador/equipos/${equipo._id}`} className="flex-1">
+                    <button className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-2 px-3 rounded-lg text-sm font-medium transition-colors">
+                      Ver Detalles
+                    </button>
+                  </Link>
                   {equipo.capitan === jugador?._id && (
                     <button
                       onClick={() => handleDeleteEquipo(equipo._id)}

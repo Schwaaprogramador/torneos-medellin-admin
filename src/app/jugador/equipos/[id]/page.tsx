@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { use } from "react";
 
-export default function EquipoDetallePage({ params }: { params: { id: string } }) {
+export default function EquipoDetallePage({ params }: { params: Promise<{ id: string }> }) {
   const [equipo, setEquipo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const paramsUse = use(params);
+  console.log(paramsUse)
 
   useEffect(() => {
     const fetchEquipo = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/equipos/${params.id}`);
+        const response = await fetch(`http://localhost:4000/equipos/${paramsUse.id}`);
         const data = await response.json();
         setEquipo(data);
       } catch (error) {
@@ -22,7 +25,7 @@ export default function EquipoDetallePage({ params }: { params: { id: string } }
     };
 
     fetchEquipo();
-  }, [params.id]);
+  }, [paramsUse.id]);
 
   if (loading) {
     return (

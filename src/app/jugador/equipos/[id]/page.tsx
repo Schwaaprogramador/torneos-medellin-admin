@@ -83,7 +83,7 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
                   {equipo.players?.map((player: any) => (
                     <li key={player._id} className="flex items-center space-x-2">
                       <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                      <span>{player.name}</span>
+                      <span className="text-gray-700">{player.name}</span>
                     </li>
                   )) || <li className="text-gray-500">No hay jugadores registrados</li>}
                 </ul>

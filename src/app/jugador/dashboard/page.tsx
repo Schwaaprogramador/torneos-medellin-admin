@@ -12,27 +12,60 @@ interface Jugador {
   createdAt: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 export default function JugadorDashboardPage() {
   const [jugador, setJugador] = useState<Jugador | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulación de datos del jugador (en producción esto vendría de una API)
   useEffect(() => {
-    const mockJugador: Jugador = {
-      _id: "jugador123",
-      name: "Carlos Rodríguez",
-      email: "carlos.rodriguez@email.com",
-      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      type: "jugador",
-      myteams: ["equipo1", "equipo2"],
-      points: 1250,
-      createdAt: "2024-01-15T10:30:00Z"
+    const fetchUserData = async () => {
+      try {
+        const userStr = localStorage.getItem('user');
+        
+        if (!userStr) {
+          throw new Error('No user data found');
+        }
+        
+        const user = JSON.parse(userStr);
+        
+        if (!user.id) {
+          throw new Error('User ID not found');
+        }
+
+        const response = await fetch(`${API_URL}/usuarios/${user.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include' // This will send the cookie automatically
+        });
+        console.log(response)
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const data = await response.json();
+        setJugador({
+          _id: data._id,
+          name: data.name,
+          email: data.email,
+          img: data.img || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+          type: data.type,
+          myteams: data.myteams || [],
+          points: data.points || 0,
+          createdAt: data.createdAt
+        });
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Error al cargar los datos del jugador. Por favor, intenta de nuevo.');
+      } finally {
+        setLoading(false);
+      }
     };
-    
-    setTimeout(() => {
-      setJugador(mockJugador);
-      setLoading(false);
-    }, 1000);
+
+    fetchUserData();
   }, []);
 
   if (loading) {

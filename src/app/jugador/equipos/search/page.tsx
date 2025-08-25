@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/configs/url';
 
 interface Equipo {
   _id: string;
@@ -28,7 +29,7 @@ export default function EquiposSearchPage() {
     const fetchEquipos = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:4000/equipos/public');
+        const response = await fetch(`${API_URL}/equipos/public`);
         
         if (!response.ok) {
           throw new Error('Error al cargar los equipos');

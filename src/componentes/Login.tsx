@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, JSX } from "react";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/configs/url";
 
 export default function LoginPage(): JSX.Element {
   const [name, setName] = useState<string>("");
@@ -14,7 +15,7 @@ export default function LoginPage(): JSX.Element {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:4000/usuarios/login", {
+      const response = await fetch(`${API_URL}/usuarios/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, password }),

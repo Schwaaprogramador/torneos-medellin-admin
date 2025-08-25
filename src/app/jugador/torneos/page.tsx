@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/configs/url";
 
 interface Torneo {
   _id: string;
@@ -41,7 +42,7 @@ export default function JugadorTorneosPage() {
     const fetchTorneos = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:4000/torneos');
+        const response = await fetch(`${API_URL}/torneos`);
         
         if (!response.ok) {
           throw new Error('Error al cargar los torneos');
@@ -69,7 +70,7 @@ export default function JugadorTorneosPage() {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/torneos', {
+      const response = await fetch(`${API_URL}/torneos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

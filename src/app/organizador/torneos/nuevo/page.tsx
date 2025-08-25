@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/configs/url';
 
 interface NuevoTorneo {
   name: string;
@@ -43,7 +44,7 @@ export default function NuevoTorneoPage() {
 
     try {
       // Llamada a la API para crear el torneo
-      const response = await fetch('http://localhost:4000/torneos', {
+      const response = await fetch(`${API_URL}/torneos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { url } from "../../../configs/url";
+import { API_URL } from "../../../configs/url";
 import Link from "next/link";
+import { url } from "inspector";
 
 interface Equipo {
-  _id: string;
+  _id: string;  
   name: string;
   capitan: string;
   image: string;
@@ -31,7 +32,7 @@ export default function JugadorEquiposPage() {
   useEffect(() => {
     const fetchEquipos = async () => {
       try {
-        const response = await fetch(`${url}/equipos`);
+        const response = await fetch(`${API_URL}/equipos`);
         if (!response.ok) {
           throw new Error("Error al obtener los equipos");
         }
@@ -58,7 +59,7 @@ export default function JugadorEquiposPage() {
   const handleDeleteEquipo = async (equipoId: string) => {
     if (confirm("¿Estás seguro de que quieres eliminar este equipo?")) {
       try {
-        const response = await fetch(`${url}/equipos/${equipoId}`, {
+        const response = await fetch(`${API_URL}/equipos/${equipoId}`, {
           method: "DELETE",
         });
 

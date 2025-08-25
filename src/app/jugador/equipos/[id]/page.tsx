@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import { API_URL } from "@/configs/url";
 
 export default function EquipoDetallePage({ params }: { params: Promise<{ id: string }> }) {
   const [equipo, setEquipo] = useState<any>(null);
@@ -14,7 +15,7 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     const fetchEquipo = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/equipos/${paramsUse.id}`);
+        const response = await fetch(`${API_URL}/equipos/${paramsUse.id}`);
         const data = await response.json();
         setEquipo(data);
       } catch (error) {

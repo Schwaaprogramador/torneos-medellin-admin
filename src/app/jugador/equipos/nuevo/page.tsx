@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/configs/url";
 
 export default function NuevoEquipoPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function NuevoEquipoPage() {
         torneos: [],
         playersRequest: []
       };
-      const response = await fetch("http://localhost:4000/equipos", {
+      const response = await fetch(`${API_URL}/equipos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

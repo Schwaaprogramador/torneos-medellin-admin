@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/configs/url";
 import { useState, useEffect } from "react";
 
 interface Jugador {
@@ -11,8 +12,6 @@ interface Jugador {
   points: number;
   createdAt: string;
 }
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export default function JugadorDashboardPage() {
   const [jugador, setJugador] = useState<Jugador | null>(null);

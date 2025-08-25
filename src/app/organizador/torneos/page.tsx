@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { API_URL } from '@/configs/url';
 
 interface Torneo {
   _id: string;
@@ -23,7 +24,7 @@ export default function OrganizadorTorneosPage() {
   useEffect(() => {
     const fetchTorneos = async () => {
       try {
-        const response = await fetch('http://localhost:4000/torneos', {
+        const response = await fetch(`${API_URL}/torneos`, {
           credentials: 'include'
         });
 

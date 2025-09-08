@@ -2,13 +2,21 @@
 import { API_URL } from "@/configs/url";
 import { useState, useEffect } from "react";
 
+interface Team {
+  _id: string;
+  name: string;
+  image?: string;
+  players: string[];
+  createdAt: string;
+}
+
 interface Jugador {
   _id: string;
   name: string;
   email: string;
   img: string;
   type: "admin" | "jugador" | "organizador";
-  myteams: string[];
+  myteams: Team[];
   points: number;
   createdAt: string;
 }
@@ -38,9 +46,9 @@ export default function JugadorDashboardPage() {
           headers: {
             'Content-Type': 'application/json'
           },
-          credentials: 'include' // This will send the cookie automatically
+          credentials: 'include'
         });
-        console.log(response)
+
         if (!response.ok) {
           throw new Error('Failed to fetch user data');
         }
@@ -164,15 +172,33 @@ export default function JugadorDashboardPage() {
         
         {jugador.myteams.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {jugador.myteams.map((equipoId, index) => (
-              <div key={equipoId} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center">
-                    <span className="text-black font-bold text-lg">E{index + 1}</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-800">Equipo {index + 1}</h4>
-                    <p className="text-sm text-gray-500">ID: {equipoId.slice(-6)}</p>
+            {jugador.myteams.map((equipo) => (
+              <div key={equipo._id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-yellow-400 transition-colors">
+                <div className="flex items-center space-x-4">
+                  {equipo.image ? (
+                    <img 
+                      src={equipo.image} 
+                      alt={equipo.name}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-yellow-400 rounded-lg flex items-center justify-center">
+                      <span className="text-black font-bold text-xl">
+                        {equipo.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-800 text-lg">{equipo.name}</h4>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-sm text-gray-500">
+                        {equipo.players.length} jugadores
+                      </span>
+                      <span className="text-gray-300">•</span>
+                      <span className="text-sm text-gray-500">
+                        Creado el {new Date(equipo.createdAt).toLocaleDateString('es-ES')}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -218,4 +244,3 @@ export default function JugadorDashboardPage() {
     </div>
   );
 }
-  

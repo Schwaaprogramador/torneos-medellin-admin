@@ -8,6 +8,8 @@ export const navConfig = {
     organizador: [
       { label: "Mis Torneos", path: "/organizador/torneos" },
       { label: "Crear Torneo", path: "/organizador/torneos/nuevo" },
+      // Las noticias se crean desde el ID del torneo
+      //{ label: "Crear Noticia", path: "/organizador/torneos/noticias/crear" },
     ],
     jugador: [
       { label: "Dashboard", path: "/jugador/dashboard" },

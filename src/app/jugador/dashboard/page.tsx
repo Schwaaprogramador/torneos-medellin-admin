@@ -1,6 +1,7 @@
 "use client";
 import { API_URL } from "@/configs/url";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Team {
   _id: string;
@@ -14,7 +15,7 @@ interface Jugador {
   _id: string;
   name: string;
   email: string;
-  img: string;
+  image: string;
   type: "admin" | "jugador" | "organizador";
   myteams: Team[];
   points: number;
@@ -25,6 +26,7 @@ export default function JugadorDashboardPage() {
   const [jugador, setJugador] = useState<Jugador | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -54,11 +56,12 @@ export default function JugadorDashboardPage() {
         }
 
         const data = await response.json();
+        console.log(data);
         setJugador({
           _id: data._id,
           name: data.name,
           email: data.email,
-          img: data.img || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+          image: data.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
           type: data.type,
           myteams: data.myteams || [],
           points: data.points || 0,
@@ -110,7 +113,7 @@ export default function JugadorDashboardPage() {
           <div className="text-center">
             <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-yellow-400">
               <img
-                src={jugador.img}
+                src={jugador.image}
                 alt={jugador.name}
                 className="w-full h-full object-cover"
               />
@@ -148,13 +151,22 @@ export default function JugadorDashboardPage() {
         <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Acciones Rápidas</h3>
           <div className="space-y-3">
-            <button className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-medium py-2 px-4 rounded-lg transition-colors">
+            <button 
+              onClick={() => router.push('/jugador/equipos/nuevo')}
+              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-medium py-2 px-4 rounded-lg transition-colors"
+            >
               Crear Nuevo Equipo
             </button>
-            <button className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+            <button 
+              onClick={() => router.push('/jugador/equipos')}
+              className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
               Ver Mis Equipos
             </button>
-            <button className="w-full bg-blue-500 hover:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+            <button 
+              onClick={() => router.push('/jugador/torneos')}
+              className="w-full bg-blue-500 hover:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            >
               Buscar Torneos
             </button>
           </div>
@@ -165,7 +177,10 @@ export default function JugadorDashboardPage() {
       <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-gray-800">Mis Equipos</h3>
-          <button className="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-lg font-medium transition-colors">
+          <button 
+            onClick={() => router.push('/jugador/equipos/nuevo')}
+            className="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-lg font-medium transition-colors"
+          >
             + Nuevo Equipo
           </button>
         </div>
@@ -213,7 +228,10 @@ export default function JugadorDashboardPage() {
             </div>
             <h4 className="text-lg font-medium text-gray-800 mb-2">No tienes equipos aún</h4>
             <p className="text-gray-500 mb-4">Crea tu primer equipo para comenzar a participar en torneos</p>
-            <button className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors">
+            <button 
+              onClick={() => router.push('/jugador/equipos/nuevo')}
+              className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors"
+            >
               Crear Primer Equipo
             </button>
           </div>

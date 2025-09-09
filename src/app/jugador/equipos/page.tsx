@@ -8,17 +8,18 @@ import { url } from "inspector";
 interface Equipo {
   _id: string;  
   name: string;
-  capitan: string;
+  capitan: any; // Puede ser un objeto populado o un string ID
   image: string;
-  players: string[];
-  torneos: string[];
+  players: any[]; // Puede ser un array de objetos populados o strings ID
+  torneos?: string[];
   createdAt: string;
 }
 
 interface Jugador {
-  _id: string;
+  id: string;
   name: string;
   email: string;
+  type: string;
 }
 
 export default function JugadorEquiposPage() {
@@ -28,30 +29,38 @@ export default function JugadorEquiposPage() {
   const [loading, setLoading] = useState(true);
 
 
-  // Simulación de datos (en producción esto vendría de una API)
+  // Obtener datos del usuario y sus equipos
   useEffect(() => {
-    const fetchEquipos = async () => {
+    const fetchUserData = async () => {
       try {
-        const response = await fetch(`${API_URL}/equipos`);
-        if (!response.ok) {
-          throw new Error("Error al obtener los equipos");
+        // Obtener información del usuario del localStorage
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+          console.error("No se encontró información del usuario");
+          setLoading(false);
+          return;
         }
-        const data = await response.json();
-        setEquipos(data);
+
+        const parsedData = JSON.parse(userData);
+        setJugador(parsedData); // El objeto completo contiene id, name, etc.
+
+        // Obtener los datos del usuario incluyendo myteams populado
+        const response = await fetch(`${API_URL}/usuarios/${parsedData.id}`);
+        if (!response.ok) {
+          throw new Error("Error al obtener los datos del usuario");
+        }
+        const userData2 = await response.json();
+        
+        // Usar directamente myteams que ya viene populado desde el backend
+        setEquipos(userData2.myteams || []);
       } catch (error) {
-        console.error(error);
+        console.error("Error al cargar datos:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      setJugador(parsedData.user);
-    }
-
-    fetchEquipos();
+    fetchUserData();
   }, []);
 
 
@@ -127,7 +136,7 @@ export default function JugadorEquiposPage() {
                 />
                 <div className="absolute top-3 right-3">
                   <span className="bg-yellow-500 text-black px-2 py-1 rounded-full text-xs font-bold">
-                    {equipo.players.length} jugadores
+                    {Array.isArray(equipo.players) ? equipo.players.length : 0} jugadores
                   </span>
                 </div>
               </div>
@@ -136,7 +145,7 @@ export default function JugadorEquiposPage() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xl font-bold text-gray-800">{equipo.name}</h3>
-                  {equipo.capitan === jugador?._id && (
+                  {(equipo.capitan === jugador?.id || (equipo.capitan && equipo.capitan._id === jugador?.id)) && (
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
                       Capitán
                     </span>
@@ -154,7 +163,7 @@ export default function JugadorEquiposPage() {
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    Torneos: {equipo.torneos.length}
+                    Torneos: {equipo.torneos ? equipo.torneos.length : 0}
                   </div>
                 </div>
 
@@ -165,14 +174,22 @@ export default function JugadorEquiposPage() {
                       Ver Detalles
                     </button>
                   </Link>
-                  {equipo.capitan === jugador?._id && (
-                    <button
-                      onClick={() => handleDeleteEquipo(equipo._id)}
-                      className="bg-red-500 hover:bg-red-400 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Eliminar
-                    </button>
-                  )}
+                  {(equipo.capitan === jugador?.id || (equipo.capitan && equipo.capitan._id === jugador?.id)) && (
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => router.push(`/jugador/equipos/admin/${equipo._id}`)}
+                            className="bg-yellow-500 hover:bg-yellow-400 text-black py-2 px-3 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteEquipo(equipo._id)}
+                            className="bg-red-500 hover:bg-red-400 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      )}
                 </div>
               </div>
             </div>

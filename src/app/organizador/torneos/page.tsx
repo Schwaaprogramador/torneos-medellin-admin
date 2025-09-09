@@ -11,7 +11,7 @@ interface Torneo {
   maxTeams: number;
   image: string;
   status: 'inscripcion' | 'fase_grupos' | 'fase_eliminacion' | 'finalizado';
-  acceptedTeams: any[];
+  teams: any[];
   requestTeams: any[];
   createdAt: string;
 }
@@ -118,7 +118,7 @@ export default function OrganizadorTorneosPage() {
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">{torneo.name}</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p>Formato: {getFormatName(torneo.format)}</p>
-                  <p>Equipos: {torneo.acceptedTeams.length}/{torneo.maxTeams}</p>
+                  <p>Equipos: {torneo.teams.length}/{torneo.maxTeams}</p>
                   <p>Solicitudes pendientes: {torneo.requestTeams.length}</p>
                   <p>Creado: {new Date(torneo.createdAt).toLocaleDateString()}</p>
                 </div>

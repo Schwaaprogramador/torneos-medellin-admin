@@ -21,7 +21,7 @@ export default function LoginPage(): JSX.Element {
         body: JSON.stringify({ name, password }),
         credentials: "include",
       });
-      console.log(response)
+      console.log(response.body)
       if (!response.ok) {
         throw new Error("Credenciales incorrectas");
       }

@@ -104,14 +104,14 @@ export default function CrearNoticiaPage() {
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
             <label htmlFor="escenarioId" className="block text-sm font-medium text-gray-700">
-              Escenario (Opcional)
+              Escenario
             </label>
             <select
               id="escenarioId"
               name="escenarioId"
               value={formData.escenarioId}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
+              className="mt-1 text-black block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
             >
               <option value="">Selecciona un escenario</option>
               {escenarios.map((escenario) => (
@@ -132,7 +132,7 @@ export default function CrearNoticiaPage() {
               name="tittle"
               value={formData.tittle}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
+              className="mt-1 text-black block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
             />
             {errors.tittle && <p className="mt-1 text-sm text-red-600">{errors.tittle}</p>}
           </div>
@@ -147,7 +147,7 @@ export default function CrearNoticiaPage() {
               rows={4}
               value={formData.body}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
+              className="mt-1 text-black block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
             />
             {errors.body && <p className="mt-1 text-sm text-red-600">{errors.body}</p>}
           </div>
@@ -162,7 +162,7 @@ export default function CrearNoticiaPage() {
               name="img"
               value={formData.img}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
+              className="mt-1 text-black block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500"
             />
           </div>
 

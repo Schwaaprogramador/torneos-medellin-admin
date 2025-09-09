@@ -42,6 +42,7 @@ export default function NuevoEquipoPage() {
         return;
       }
       const equipoData = {
+        userId,
         name: formData.name,
         image: formData.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop",
         capitan: userId,
@@ -98,7 +99,7 @@ export default function NuevoEquipoPage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               placeholder="Ej: Los Tigres"
               required
             />
@@ -113,7 +114,7 @@ export default function NuevoEquipoPage() {
               name="image"
               value={formData.image}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               placeholder="https://ejemplo.com/imagen.jpg"
             />
             <p className="text-xs text-gray-500 mt-1">

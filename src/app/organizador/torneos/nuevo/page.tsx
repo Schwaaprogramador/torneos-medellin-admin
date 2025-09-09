@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/configs/url';
 
@@ -9,21 +9,31 @@ interface NuevoTorneo {
   format: 'elimination' | 'league' | 'mixed';
   maxTeams: number;
   image: string;
-  username: string; // Campo requerido por el middleware de admin
 }
 
 export default function NuevoTorneoPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>('');
   
   const [torneo, setTorneo] = useState<NuevoTorneo>({
     name: '',
     format: 'elimination',
     maxTeams: 8,
-    image: '',
-    username: '' // Campo para autenticación del admin
+    image: ''
   });
+  
+  useEffect(() => {
+    // Obtener el ID del usuario del localStorage cuando el componente se monta
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUserData = JSON.parse(userData);
+      setUserId(parsedUserData.id);
+    } else {
+      setError('No se encontró información del usuario. Por favor inicie sesión.');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +46,8 @@ export default function NuevoTorneoPage() {
       return;
     }
 
-    if (!torneo.username.trim()) {
-      setError('El nombre de usuario del administrador es obligatorio');
+    if (!userId) {
+      setError('No se encontró información del usuario. Por favor inicie sesión.');
       setLoading(false);
       return;
     }
@@ -52,7 +62,7 @@ export default function NuevoTorneoPage() {
           format: torneo.format,
           maxTeams: torneo.maxTeams,
           image: torneo.image,
-          username: torneo.username, // Requerido por el middleware de admin
+          organizerId: userId, // Usar el ID del usuario logueado
           status: 'inscripcion' // Estado inicial del torneo
         })
       });
@@ -96,23 +106,7 @@ export default function NuevoTorneoPage() {
         )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-              Usuario Administrador *
-            </label>
-            <input
-              type="text"
-              id="username"
-              value={torneo.username}
-              onChange={(e) => setTorneo({ ...torneo, username: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-              placeholder="Nombre de usuario del administrador"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Debe ser un usuario con perfil de administrador
-            </p>
-          </div>
+
 
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">

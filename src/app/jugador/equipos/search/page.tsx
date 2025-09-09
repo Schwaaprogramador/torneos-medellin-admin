@@ -9,7 +9,7 @@ interface Equipo {
   name: string;
   capitan: any;
   image: string;
-  publico: boolean;
+  public: boolean;
   players: any[];
   playersRequest: any[];
   createdAt: string;
@@ -127,7 +127,7 @@ export default function EquiposSearchPage() {
               id="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               placeholder="Escribe el nombre del equipo..."
             />
           </div>
@@ -141,7 +141,7 @@ export default function EquiposSearchPage() {
               id="sort"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'name' | 'createdAt' | 'players')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
             >
               <option value="name">Nombre</option>
               <option value="createdAt">Más Recientes</option>

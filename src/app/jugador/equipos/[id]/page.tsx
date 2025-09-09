@@ -8,16 +8,28 @@ import { API_URL } from "@/configs/url";
 export default function EquipoDetallePage({ params }: { params: Promise<{ id: string }> }) {
   const [equipo, setEquipo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isCapitan, setIsCapitan] = useState(false);
   const router = useRouter();
   const paramsUse = use(params);
-  console.log(paramsUse)
+  
 
   useEffect(() => {
     const fetchEquipo = async () => {
       try {
         const response = await fetch(`${API_URL}/equipos/${paramsUse.id}`);
+        
         const data = await response.json();
+        console.log(data);
         setEquipo(data);
+        
+        // Verificar si el usuario actual es el capitán
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          const userIsCapitan = data.capitan === user.id || 
+                              (data.capitan && data.capitan._id === user.id);
+          setIsCapitan(userIsCapitan);
+        }
       } catch (error) {
         console.error("Error fetching equipo:", error);
       } finally {
@@ -82,10 +94,17 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
                 <h3 className="font-semibold text-gray-700">Jugadores:</h3>
                 <ul className="mt-2 space-y-2">
                   {equipo.players?.map((player: any) => (
-                    <li key={player._id} className="flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                      <span className="text-gray-700">{player.name}</span>
-                    </li>
+                    <div className="flex gap-3">
+                      <img 
+                        src={player.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop"} 
+                        alt={player.name}
+                        className="w-20 h-20 rounded-full object-cover border-2 border-white"
+                      />
+                      <li key={player._id} className="flex items-center space-x-2">
+                        <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        <span className="text-gray-700">{player.name}</span>
+                      </li>
+                    </div>
                   )) || <li className="text-gray-500">No hay jugadores registrados</li>}
                 </ul>
               </div>
@@ -94,6 +113,14 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
         </div>
         
         <div className="mt-6 flex space-x-4">
+          {isCapitan && (
+            <button 
+              onClick={() => router.push(`/jugador/equipos/admin/${paramsUse.id}`)}
+              className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors"
+            >
+              Editar Equipo
+            </button>
+          )}
           <button 
             onClick={() => router.push('/jugador/equipos')}
             className="bg-gray-500 hover:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"

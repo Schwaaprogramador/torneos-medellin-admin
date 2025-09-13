@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { API_URL } from "@/configs/url";
+import Equipo from "@/interfacesTS/Equipo.interface";
 
 export default function EquipoDetallePage({ params }: { params: Promise<{ id: string }> }) {
-  const [equipo, setEquipo] = useState<any>(null);
+  const [equipo, setEquipo] = useState<Equipo | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCapitan, setIsCapitan] = useState(false);
   const router = useRouter();

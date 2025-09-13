@@ -3,24 +3,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/configs/url";
 
-interface Torneo {
-  _id: string;
-  name: string;
-  organizerId: string;
-  format: "elimination" | "league" | "mixed";
-  maxTeams: number;
-  image: string;
-  status: "inscripcion" | "fase_grupos" | "fase_eliminacion" | "finalizado";
-  acceptedTeams: any[];
-  requestTeams: any[];
-  createdAt: string;
-}
-
-interface Jugador {
-  _id: string;
-  name: string;
-  email: string;
-}
+import Torneo from '@/interfacesTS/Torneo.interface';
+import Jugador from '@/interfacesTS/Jugador.interface';
 
 export default function JugadorTorneosPage() {
   const router = useRouter();

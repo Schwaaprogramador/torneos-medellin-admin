@@ -33,9 +33,8 @@ export default function NuevoEquipoPage() {
 
     try {
       const userData = localStorage.getItem("user");
-      console.log(userData)
       const userId = userData ? JSON.parse(userData).id : null;
-      console.log(userId)
+      
       if (!userId) {
         setError("No se pudo obtener la información del usuario");
         setLoading(false);

@@ -2,11 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-
-type Escenario = {
-  _id: string;
-  name: string;
-};
+import Escenario from "@/interfacesTS/Escenario.interface";
+import { API_URL } from "@/configs/url";
 
 type FormData = {
   tournamentId: string;
@@ -38,7 +35,7 @@ export default function CrearNoticiaPage() {
   useEffect(() => {
     const fetchEscenarios = async () => {
       try {
-        const res = await fetch("http://localhost:4000/escenarios");
+        const res = await fetch(`${API_URL}/escenarios`);
         if (!res.ok) throw new Error("Error al cargar escenarios");
         const data = await res.json();
         setEscenarios(data);
@@ -67,7 +64,7 @@ export default function CrearNoticiaPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/noticias", {
+      const res = await fetch(`${API_URL}/noticias`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -3,17 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { API_URL } from "../../../configs/url";
 import Link from "next/link";
-import { url } from "inspector";
-
-interface Equipo {
-  _id: string;  
-  name: string;
-  capitan: any; // Puede ser un objeto populado o un string ID
-  image: string;
-  players: any[]; // Puede ser un array de objetos populados o strings ID
-  torneos?: string[];
-  createdAt: string;
-}
+import Equipo from "@/interfacesTS/Equipo.interface";
 
 interface Jugador {
   id: string;

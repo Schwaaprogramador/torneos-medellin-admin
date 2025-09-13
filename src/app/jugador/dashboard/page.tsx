@@ -2,25 +2,7 @@
 import { API_URL } from "@/configs/url";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-interface Team {
-  _id: string;
-  name: string;
-  image?: string;
-  players: string[];
-  createdAt: string;
-}
-
-interface Jugador {
-  _id: string;
-  name: string;
-  email: string;
-  image: string;
-  type: "admin" | "jugador" | "organizador";
-  myteams: Team[];
-  points: number;
-  createdAt: string;
-}
+import Jugador from "@/interfacesTS/Jugador.interface";
 
 export default function JugadorDashboardPage() {
   const [jugador, setJugador] = useState<Jugador | null>(null);
@@ -61,10 +43,13 @@ export default function JugadorDashboardPage() {
           _id: data._id,
           name: data.name,
           email: data.email,
-          image: data.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+          image: data.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face' as string,
           type: data.type,
           myteams: data.myteams || [],
           points: data.points || 0,
+          public: data.public || false,
+          mytournaments: data.mytournaments || [],
+          updatedAt: data.updatedAt,
           createdAt: data.createdAt
         });
       } catch (err) {

@@ -3,17 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/configs/url';
-
-interface Equipo {
-  _id: string;
-  name: string;
-  capitan: any;
-  image: string;
-  public: boolean;
-  players: any[];
-  playersRequest: any[];
-  createdAt: string;
-}
+import Equipo from '@/interfacesTS/Equipo.interface';
 
 export default function EquiposSearchPage() {
   const router = useRouter();

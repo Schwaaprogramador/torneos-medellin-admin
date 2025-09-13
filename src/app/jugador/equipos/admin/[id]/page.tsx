@@ -5,16 +5,7 @@ import { useRouter } from 'next/navigation';
 import { use } from 'react';
 import { API_URL } from '@/configs/url';
 import CapitanGuard from '@/componentes/CapitanGuard';
-
-interface Equipo {
-  _id: string;
-  name: string;
-  image: string;
-  public: boolean;
-  capitan: any;
-  players: any[];
-  torneos?: any[];
-}
+import Equipo from '@/interfacesTS/Equipo.interface';
 
 export default function EditarEquipoPage({ params }: { params: Promise<{ id: string }> }) {
   const [equipo, setEquipo] = useState<Equipo | null>(null);

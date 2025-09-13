@@ -4,28 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { API_URL } from '@/configs/url';
 
-interface Torneo {
-  _id: string;
-  name: string;
-  organizerId: string;
-  format: 'elimination' | 'league' | 'mixed';
-  maxTeams: number;
-  image: string;
-  status: 'inscripcion' | 'fase_grupos' | 'fase_eliminacion' | 'finalizado';
-  acceptedTeams: any[];
-  requestTeams: any[];
-  createdAt: string;
-  champion?: any;
-  standings?: any[];
-  eliminationBracket?: any;
-}
-
-interface Equipo {
-  _id: string;
-  name: string;
-  logo?: string;
-  players?: any[];
-}
+import Torneo from '@/interfacesTS/Torneo.interface';
 
 export default function TorneoDetallePage() {
   const params = useParams();
@@ -54,7 +33,7 @@ export default function TorneoDetallePage() {
           throw new Error('Torneo no encontrado');
         }
         
-        const data = await response.json();
+        const data: Torneo = await response.json();
         setTorneo(data);
       } catch (err: any) {
         console.error('Error fetching tournament:', err);
@@ -79,7 +58,7 @@ export default function TorneoDetallePage() {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/torneos/request', {
+      const response = await fetch(`${API_URL}/torneos/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -97,8 +76,8 @@ export default function TorneoDetallePage() {
       }
 
       // Recargar el torneo para ver los cambios
-      const updatedResponse = await fetch(`http://localhost:4000/torneos/${torneoId}`);
-      const updatedData = await updatedResponse.json();
+      const updatedResponse = await fetch(`${API_URL}/torneos/${torneoId}`);
+      const updatedData: Torneo = await updatedResponse.json();
       setTorneo(updatedData);
       
       setShowInscriptionForm(false);
@@ -193,7 +172,7 @@ export default function TorneoDetallePage() {
               {getStatusText(torneo.status)}
             </span>
             <span className="text-white text-sm">
-              {torneo.acceptedTeams?.length || 0} / {torneo.maxTeams} equipos
+              {torneo.teams?.length || 0} / {torneo.maxTeams} equipos
             </span>
           </div>
         </div>
@@ -228,7 +207,7 @@ export default function TorneoDetallePage() {
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">Equipos Inscritos</label>
                 <p className="text-gray-800 font-medium">
-                  {torneo.acceptedTeams?.length || 0} equipos confirmados
+                  {torneo.teams?.length || 0} equipos confirmados
                 </p>
               </div>
             </div>
@@ -237,9 +216,9 @@ export default function TorneoDetallePage() {
           {/* Equipos Participantes */}
           <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Equipos Participantes</h2>
-            {torneo.acceptedTeams && torneo.acceptedTeams.length > 0 ? (
+            {torneo.teams && torneo.teams.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {torneo.acceptedTeams.map((equipo: any, index: number) => (
+                {torneo.teams.map((equipo: any, index: number) => (
                   <div key={equipo._id || index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
                       <span className="text-white font-bold text-sm">{index + 1}</span>
@@ -313,7 +292,7 @@ export default function TorneoDetallePage() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Equipos Confirmados:</span>
-                <span className="font-medium">{torneo.acceptedTeams?.length || 0}</span>
+                <span className="font-medium">{torneo.teams?.length || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Solicitudes Pendientes:</span>
@@ -321,7 +300,7 @@ export default function TorneoDetallePage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Cupos Disponibles:</span>
-                <span className="font-medium">{torneo.maxTeams - (torneo.acceptedTeams?.length || 0)}</span>
+                <span className="font-medium">{torneo.maxTeams - (torneo.teams?.length || 0)}</span>
               </div>
             </div>
           </div>

@@ -3,67 +3,19 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-
-type Team = {
-  _id: string;
-  name: string;
-};
-
-type Match = {
-  _id: string;
-  teamA: Team;
-  teamB: Team;
-  score: {
-    teamA: number;
-    teamB: number;
-  };
-};
-type Noticia = {
-  _id: string;
-  userId: string;
-  tournamentId: string;
-  escenarioId?: string;
-  tittle: string;
-  body: string;
-  img?: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type Tournament = {
-  _id: string;
-  name: string;
-  organizerId: string;
-  description: string;
-  noticias: Noticia[];
-  requestTeams: Team[];
-  teams: Team[];
-  public: boolean;
-  format: "elimination" | "league" | "mixed";
-  maxTeams: number | null;
-  image: string;
-  status: "inscripcion" | "fase_grupos" | "fase_eliminacion" | "finalizado";
-  groupMatches: Match[];
-  standings: {
-    teamId: string;
-    wins: number;
-    losses: number;
-    matchesPlayed: number;
-  }[];
-  champion: Team | null;
-  createdAt: string;
-};
+import { API_URL } from "@/configs/url";
+import Torneo from "@/interfacesTS/Torneo.interface";
 
 export default function TournamentDetailPage() {
   const { tournamentId } = useParams();
-  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [tournament, setTournament] = useState<Torneo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTournament = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/torneos/${tournamentId}`);
+        const res = await fetch(`${API_URL}/torneos/${tournamentId}`);
         if (!res.ok) throw new Error("Error al cargar el torneo");
         const data = await res.json();
         setTournament(data);
@@ -122,11 +74,7 @@ export default function TournamentDetailPage() {
                 </p>
               </div>
               <div>
-                <p className="text-gray-600">Visibilidad: 
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ml-2 ${tournament.public ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                    {tournament.public ? "Público" : "Privado"}
-                  </span>
-                </p>
+               
                 <p className="text-gray-600">Fecha de Creación: 
                   <span className="text-gray-800 font-medium ml-2">
                     {new Date(tournament.createdAt).toLocaleDateString()}
@@ -194,37 +142,7 @@ export default function TournamentDetailPage() {
             <div className="bg-gray-800 px-6 py-4">
               <h2 className="text-xl font-bold text-yellow-400">Tabla de Posiciones</h2>
             </div>
-            <div className="p-6">
-              {tournament.standings.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipo</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PJ</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">G</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {tournament.standings.map((standing) => {
-                        const team = tournament.teams.find(t => t._id === standing.teamId);
-                        return (
-                          <tr key={standing.teamId}>
-                            <td className="px-6 py-4 whitespace-nowrap text-gray-800">{team?.name || "Equipo desconocido"}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-gray-800">{standing.matchesPlayed}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-gray-800">{standing.wins}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-gray-800">{standing.losses}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="text-gray-600">No hay datos de posiciones disponibles</p>
-              )}
-            </div>
+            
           </div>
         )}
 

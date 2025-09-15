@@ -62,16 +62,7 @@ export default function EquiposSearchPage() {
     setFilteredEquipos(filtered);
   }, [equipos, searchTerm, sortBy]);
 
-  const handleJoinRequest = async (equipoId: string) => {
-    try {
-      // Aquí implementarías la lógica para solicitar unirse al equipo
-      // Por ahora solo mostramos un mensaje
-      alert('Funcionalidad de solicitud de unión en desarrollo');
-    } catch (err) {
-      console.error('Error requesting to join team:', err);
-      setError('Error al solicitar unirse al equipo');
-    }
-  };
+ 
 
   const handleViewTeam = (equipoId: string) => {
     router.push(`/jugador/equipos/${equipoId}`);
@@ -208,12 +199,7 @@ export default function EquiposSearchPage() {
                   >
                     Ver Detalles
                   </button>
-                  <button 
-                    onClick={() => handleJoinRequest(equipo._id)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
-                  >
-                    Solicitar Unirse
-                  </button>
+                  
                 </div>
               </div>
             </div>

@@ -147,9 +147,8 @@ export default function NuevoEquipoPage() {
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
         <h3 className="text-lg font-medium text-blue-800 mb-2">¿Qué sigue después de crear tu equipo?</h3>
         <ul className="list-disc list-inside text-blue-700 space-y-1">
-          <li>Podrás invitar jugadores a unirse a tu equipo</li>
-          <li>Inscribir tu equipo en torneos disponibles</li>
-          <li>Gestionar la alineación y estrategia de tu equipo</li>
+          <li>Aceptar jugadores que quieran unirse a tu equipo</li>
+          <li>Unirte a torneos y gestionar tu equipo</li>
         </ul>
       </div>
     </div>

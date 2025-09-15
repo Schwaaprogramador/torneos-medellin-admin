@@ -10,6 +10,8 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
   const [equipo, setEquipo] = useState<Equipo | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCapitan, setIsCapitan] = useState(false);
+  const [isPlayer, setIsPlayer] = useState(false);
+  const [requestSending, setRequestSending] = useState(false);
   const router = useRouter();
   const paramsUse = use(params);
   
@@ -20,7 +22,7 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
         const response = await fetch(`${API_URL}/equipos/${paramsUse.id}`);
         
         const data = await response.json();
-        console.log(data);
+        
         setEquipo(data);
         
         // Verificar si el usuario actual es el capitán
@@ -30,7 +32,13 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
           const userIsCapitan = data.capitan === user.id || 
                               (data.capitan && data.capitan._id === user.id);
           setIsCapitan(userIsCapitan);
+          // Verificar si el usuario ya es parte del equipo
+          const userIsPlayer = data.players?.some((player: any) => 
+            player._id === user.id || player === user.id
+          );
+          setIsPlayer(userIsPlayer);
         }
+        
       } catch (error) {
         console.error("Error fetching equipo:", error);
       } finally {
@@ -40,6 +48,43 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
 
     fetchEquipo();
   }, [paramsUse.id]);
+
+  const handleRequestJoin = async () => {
+    try {
+      setRequestSending(true);
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        alert('Debes iniciar sesión para enviar una solicitud');
+        return;
+      }
+
+      const user = JSON.parse(userData);
+      const response = await fetch(`${API_URL}/equipos/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teamId: paramsUse.id,
+          userId: user.id
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Solicitud enviada correctamente');
+        router.refresh();
+      } else {
+        alert(data.message || 'Error al enviar la solicitud');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al enviar la solicitud');
+    } finally {
+      setRequestSending(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -120,6 +165,17 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
               className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors"
             >
               Editar Equipo
+            </button>
+          )}
+          {!isCapitan && !isPlayer && (
+            <button 
+              onClick={handleRequestJoin}
+              disabled={requestSending}
+              className={`bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-2 rounded-lg font-medium transition-colors ${
+                requestSending ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {requestSending ? 'Enviando solicitud...' : 'Solicitar unirse'}
             </button>
           )}
           <button 

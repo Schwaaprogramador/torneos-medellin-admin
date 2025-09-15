@@ -45,6 +45,7 @@ export default function EditarEquipoPage({ params }: { params: Promise<{ id: str
       }
     };
 
+
     fetchEquipo();
   }, [paramsUse.id]);
 
@@ -95,6 +96,34 @@ export default function EditarEquipoPage({ params }: { params: Promise<{ id: str
       setSaving(false);
     }
   };
+
+  
+  
+  const handleAcceptPlayer = async (playerId: string) => {
+          try {
+          const response = await fetch(`${API_URL}/equipos/accept`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: playerId,
+              teamId: paramsUse.id,
+            }),
+          });
+                    
+          if (response.ok) {
+            // Actualizar el estado del equipo
+            const updatedTeam = await response.json();
+            setEquipo(updatedTeam);
+            setSuccess('Jugador aceptado correctamente');
+          } else {
+            throw new Error('Error al aceptar al jugador');
+          }
+        } catch (error) {
+          setError('Error al procesar la solicitud');
+        }
+                }
 
   if (loading) {
     return (
@@ -205,21 +234,82 @@ export default function EditarEquipoPage({ params }: { params: Promise<{ id: str
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Jugadores del Equipo</h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {equipo?.players?.map((player) => (
-                <div key={player._id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <img 
-                    src={player.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop"} 
-                    alt={player.name}
-                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                  />
-                  <span className="text-gray-700">{player.name}</span>
-                </div>
-              ))}
+              {equipo?.players?.map((player, index) => (
+  <div
+    key={player._id ?? `player-${index}`}
+    className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+  >
+    <img 
+      src={player.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop"} 
+      alt={player.name}
+      className="w-10 h-10 rounded-full object-cover border border-gray-200"
+    />
+    <span className="text-gray-700">{player.name}</span>
+  </div>
+))}
+
             </div>
             
             {(!equipo?.players || equipo.players.length === 0) && (
               <p className="text-gray-500 italic">No hay jugadores en este equipo</p>
             )}
+            {/* Nueva sección para solicitudes pendientes */}
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Solicitudes Pendientes</h3>
+            
+            <div className="flex gap-4">
+              {equipo?.playersRequest?.map((player) => (
+                <div key={player._id} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <div className="flex items-center space-x-3">
+                    <img 
+                      src={player.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop"} 
+                      alt={player.name}
+                      className="w-10 h-10 rounded-full object-cover border border-yellow-200"
+                    />
+                    <span className="text-gray-700 mx-2">{player.name}</span>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleAcceptPlayer(player._id)}
+                      className="bg-green-500 hover:bg-green-400 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Aceptar
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(`${API_URL}/equipos/${paramsUse.id}/reject-player/${player._id}`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            }
+                          });
+                          
+                          if (response.ok) {
+                            // Actualizar el estado del equipo
+                            const updatedTeam = await response.json();
+                            setEquipo(updatedTeam);
+                            setSuccess('Jugador rechazado correctamente');
+                          } else {
+                            throw new Error('Error al rechazar al jugador');
+                          }
+                        } catch (error) {
+                          setError('Error al procesar la solicitud');
+                        }
+                      }}
+                      className="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded text-sm transition-colors"
+                    >
+                      Rechazar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {(!equipo?.playersRequest || equipo.playersRequest.length === 0) && (
+              <p className="text-gray-500 italic">No hay solicitudes pendientes</p>
+            )}
+          </div>
           </div>
         </div>
       </div>

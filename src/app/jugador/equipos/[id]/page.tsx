@@ -140,7 +140,7 @@ export default function EquipoDetallePage({ params }: { params: Promise<{ id: st
                 <h3 className="font-semibold text-gray-700">Jugadores:</h3>
                 <ul className="mt-2 space-y-2">
                   {equipo.players?.map((player: any) => (
-                    <div className="flex gap-3">
+                    <div className="flex gap-3" key={player._id}>
                       <img 
                         src={player.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop"} 
                         alt={player.name}
